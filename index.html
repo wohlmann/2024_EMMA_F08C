@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenSeadragon Viewer Example</title>
+
+    <style>
+        html, body {
+            height: 98%;
+            width: 100%;
+            margin: 2px;
+            background: #000000;
+        }
+        #openseadragon-viewer {
+            width: 95%;
+            height: 90%;
+            margin: auto;
+            border: 1px solid #696969;
+			margin-bottom: 5px;
+        }
+        #buttons-container {
+            text-align: center;
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+        }
+        #overlay-toggle {
+            margin-top: 5px;
+			padding: 3px 5px;
+            display: block;
+			box-sizing: border-box;
+        }
+		.overlay-toggle.active {
+			box-shadow: inset 0 0 0 2px #dc0404;
+			border: none;
+		}
+    </style>
+</head>
+<body>
+    <div style="display: flex; justify-content: center; margin:auto; border-bottom: 5px solid #000;">
+        <a href="https://www.mn.uio.no/ibv/english/research/about/infrastructure/facilities/life-science/imaging/em/index.html" target="_blank">
+            <img src="Assets/Logo/logosmall.png" alt="logo" />
+        </a>
+    </div>
+    <div id="openseadragon-viewer"></div>
+    <div id="buttons-container"></div>
+    <script src="openseadragon/openseadragon.js"></script>
+    <script src="openseadragon/openseadragon-scalebar.js"></script>
+    <script>
+        var viewer = OpenSeadragon({
+            id: "openseadragon-viewer",
+            prefixUrl: "openseadragon/images/",
+            tileSources: [{
+                type: "zoomifytileservice",
+                width: 32343,
+                height: 14888,
+                tilesUrl: "2018008_029_2018008B_H4_ser1_col_2/",
+                tileSize: 256,
+                fileFormat: "jpg"
+            }],
+            showNavigator: true,
+            navigatorPosition: "ABSOLUTE",
+            navigatorTop: "10px",
+            navigatorLeft: "20px",
+            navigatorHeight: "45%",
+            navigatorWidth: "45%",
+            navigatorAutoFade: true,
+            wrapHorizontal: false,
+            wrapVertical: false,
+            zoomPerScroll: 1.2,
+            minZoomImageRatio: 0.5,
+            showNavigationControl: false
+        });
+
+        var overlaysConfig = [
+			{name: "Basal lamina, Neural Tube", path: "OVERLAYS/001_basallamina/", color: "#b58fee", fontColor: "#000000", fontWeight: "bold", opa: "0.4"},
+			{name: "Lumen Vasculature", path: "OVERLAYS/002_vasculat/", color: "#ffc2c2", fontColor: "#000000", fontWeight: "bold", opa: "0.2"},
+			{name: "Endothelium", path: "OVERLAYS/003_endothelium/", color: "#fc8e8e", fontColor: "#000000", fontWeight: "bold", opa: "0.2"},
+			{name: "Marginal Zone", path: "OVERLAYS/004_marginal/", color: "#88c6a5", fontColor: "#000000", fontWeight: "bold", opa: "0.2"},
+			{name: "Ventricular Zone, Nuclei", path: "OVERLAYS/005_NT_Nuclei/", color: "#dfa9d6", fontColor: "#000000", fontWeight: "bold", opa: "0.2"},
+			{name: "Ventricular Zone, Cytoplasm", path: "OVERLAYS/006_NT_soma_cyt/", color: "#9391fa", fontColor: "#000000", fontWeight: "bold", opa: "0.2"},
+			{name: "B16-Tumor", path: "OVERLAYS/007_B16/", color: "#f1f69f", fontColor: "#000000", fontWeight: "bold", opa: "0.2"},
+			{name: "Neural Tube", path: "OVERLAYS/008_neuraltube/", color: "#c6d6ee", fontColor: "#000000", fontWeight: "bold", opa: "0.2"},
+			{name: "Muscle", path: "OVERLAYS/009_muscle/", color: "#f3cfcf", fontColor: "#000000", fontWeight: "bold", opa: "0.2"},
+			{name: "unidentified", path: "OVERLAYS/010_unident/", color: "#9ffc6c", fontColor: "#000000", fontWeight: "bold", opa: "0.15"},
+			{name: "Orientation LM", path: "OVERLAYS/011_orient/", color: "#cfcfcf", fontColor: "#000000", fontWeight: "bold", opa: "1"}
+        ];
+
+        var tiledImages = [];
+        viewer.addHandler("open", function() {
+            overlaysConfig.forEach(function(overlayConfig, index) {
+                var button = document.createElement("button");
+                button.innerHTML = overlayConfig.name;
+                button.style.border = "none";
+                button.style.marginRight = "5px";
+                button.style.backgroundColor = overlayConfig.color;
+                button.style.fontWeight = overlayConfig.fontWeight;
+                button.style.color = overlayConfig.fontColor;
+                button.classList.add("overlay-toggle");
+                button.onclick = function() {
+					var tile = tiledImages[index];
+					var isActive = tile.getOpacity() > 0;
+					
+					if (isActive) {
+						tile.setOpacity(0);
+						button.classList.remove('active'); // Remove active class when turning off
+						button.style.border = "none";
+					} else {
+						tile.setOpacity(parseFloat(overlayConfig.opa));
+						button.classList.add('active'); // Add active class when turning on
+						button.style.border = "";
+					}
+				};
+                document.getElementById("buttons-container").appendChild(button);
+                viewer.addTiledImage({
+                    tileSource: {
+                        type: "zoomifytileservice",
+                        width: 32343,
+                        height: 14888,
+                        tileSize: 256,
+                        fileFormat: "png",
+                        tilesUrl: overlayConfig.path
+                    },
+                    opacity: 0,
+                    success: function(event) {
+                        tiledImages[index] = event.item;
+                    }
+                });
+            });
+            viewer.scalebar({
+                type: "MICROSCOPY",
+                pixelsPerMeter: 223495200,
+                xOffset: 20,
+                yOffset: 25,
+                stayInsideImage: true,
+                location: OpenSeadragon.ScalebarLocation.BOTTOM_RIGHT,
+                color: "rgba(0,0,0,255)",
+                fontColor: "rgba(0,0,0,255)",
+                backgroundColor: 'rgba(255,255,255,0)',
+                fontSize: 'large',
+				barThickness: 4,
+				minWidth: "200px",
+            });
+        });
+    </script>
+</body>
+</html>
