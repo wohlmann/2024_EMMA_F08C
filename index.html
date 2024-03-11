@@ -70,7 +70,6 @@
             minZoomImageRatio: 0.5,
             showNavigationControl: false
         });
-
         var overlaysConfig = [
 			{name: "Basal lamina, Neural Tube", path: "OVERLAYS/001_basallamina/", color: "#b58fee", fontColor: "#000000", fontWeight: "bold", opa: "0.4"},
 			{name: "Lumen Vasculature", path: "OVERLAYS/002_vasculat/", color: "#ffc2c2", fontColor: "#000000", fontWeight: "bold", opa: "0.2"},
@@ -84,7 +83,6 @@
 			{name: "unidentified", path: "OVERLAYS/010_unident/", color: "#9ffc6c", fontColor: "#000000", fontWeight: "bold", opa: "0.15"},
 			{name: "Orientation LM", path: "OVERLAYS/011_orient/", color: "#cfcfcf", fontColor: "#000000", fontWeight: "bold", opa: "1"}
         ];
-
         var tiledImages = [];
         viewer.addHandler("open", function() {
             overlaysConfig.forEach(function(overlayConfig, index) {
@@ -99,7 +97,6 @@
                 button.onclick = function() {
 					var tile = tiledImages[index];
 					var isActive = tile.getOpacity() > 0;
-					
 					if (isActive) {
 						tile.setOpacity(0);
 						button.classList.remove('active'); // Remove active class when turning off
