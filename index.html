@@ -99,11 +99,11 @@
 					var isActive = tile.getOpacity() > 0;
 					if (isActive) {
 						tile.setOpacity(0);
-						button.classList.remove('active'); // Remove active class when turning off
+						button.classList.remove('active');
 						button.style.border = "none";
 					} else {
 						tile.setOpacity(parseFloat(overlayConfig.opa));
-						button.classList.add('active'); // Add active class when turning on
+						button.classList.add('active');
 						button.style.border = "";
 					}
 				};
